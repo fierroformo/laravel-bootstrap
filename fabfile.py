@@ -8,6 +8,7 @@ from fabutils.env import set_env_from_json_file
 from fabutils.tasks import ulocal, urun, ursync_project
 from fabutils.text import SUCCESS_ART
 
+
 @task
 def environment(env_name):
     """
@@ -26,7 +27,7 @@ def createdb():
     """
     Creates a new database instance.
     """
-    urun('echo "CREATE DATABASE ap_local;"|mysql --batch --user=root --password=password --host=localhost')
+    urun('echo "CREATE DATABASE laravel;"|mysql --batch --user=root --password=password --host=localhost')
 
 
 @task
@@ -40,7 +41,7 @@ def bootstrap():
 
 
 @task
-def dbseed(*args):
+def dbseed():
     """
     Loads the given data seeds into the project's database.
     """
@@ -49,12 +50,13 @@ def dbseed(*args):
 
 
 @task
-def makemigrations(*args, **kwargs):
+def makemigrations(name=None):
     """
     Creates the new migrations.
     """
     with cd(env.site_dir):
-        name = raw_input(u'Nombre de la migración: ')
+        if not name:
+            name = raw_input(u'migration name: ')
         run('php artisan migrate:make %s' % name)
 
 
@@ -65,6 +67,15 @@ def migrate():
     """
     with cd(env.site_dir):
         run('php artisan migrate')
+
+
+@task
+def resetdb():
+    """
+    Deletes a new database instance.
+    """
+    urun('echo "DROP DATABASE laravel;"|mysql --batch --user=root --password=password --host=localhost')
+    bootstrap()
 
 
 @task
@@ -105,12 +116,12 @@ def deploy(git_ref, upgrade=False):
             delete=True,
             default_opts='-chrtvzP',
             extra_opts='--chmod=750',
-            exclude=["*.lock", "app/storage/", "vendor/"]
+            exclude=["*.env", "*.lock", "storage/", "vendor/"]
         )
 
     # Performs the deployment task, i.e. Install/upgrade project
-    # requirements, syncronize and migrate the database changes, collect
-    # static files, reload the webserver, etc.
+    # requirements, syncronize and migrate the database changes,
+    # reload the webserver, etc.
     message = white('Running deployment tasks', bold=True)
     with cmd_msg(message, grouped=True):
         with cd(env.site_dir):

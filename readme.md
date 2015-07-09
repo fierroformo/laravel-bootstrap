@@ -8,6 +8,31 @@
 * [fabutils](https://github.com/vinco/fabutils)
 
 
-## Create the virtual machine
+## Setup the virtual machine
 * `$ vagrant up`
 * `$ fab environment:vagrant bootstrap`
+* `fab environment:vagrant bootstrap`
+* Add virtualhost to host machine `192.168.33.11   laravel.local`
+* Visit `http://laravel.local`
+
+
+## MySql Database in vagrant environment
+* `User`: `root`
+* `Password`: `password`
+* `Name`: `laravel`
+
+
+## Make migrations
+* `fab environment:<environment> makemigration:<migrationname>`
+
+
+## Migrate database
+* `fab environment:<environment> migrate`
+
+
+## Database seed
+* `fab environment:<environment> dbseed`
+
+
+## Deploy to server
+*  `fab environment:<environment> deploy:<branch_name>`
